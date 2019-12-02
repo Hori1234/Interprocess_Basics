@@ -16,6 +16,27 @@
 
 // TODO: put your definitions of the datastructures here
 
+static mq_name1[80];
+static mq_name2[80];
+
+typedef struct
+{
+    // a data structure with 3 members
+    int                     pid;
+    int 					size;
+    char					reqMessage[MAX_MESSAGE_LENGTH];
+    uint128_t				md5;
+} MQ_REQUEST_MESSAGE;
+
+typedef struct
+{
+    // a data structure with 3 members
+
+    int 					pid;
+    int                     size;
+    char                    message[MAX_MESSAGE_LENGTH];
+} MQ_RESPONSE_MESSAGE;
+
 
 #endif
 
