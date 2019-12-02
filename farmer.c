@@ -29,20 +29,33 @@
 
 int main (int argc, char * argv[])
 {
+    // check if the user has started this program with valid arguments
     if (argc != 1)
     {
-        fprintf (stderr, "%s: invalid arguments\n", argv[0]);
+        fprintf (stderr, "%s: %d arguments:\n", argv[0], argc);
+        for (i = 1; i < argc; i++)
+        {
+            fprintf (stderr, "     '%s'\n", argv[i]);
+        }
+        exit (1);
     }
+    // else: parse the arguments...
+    
         
     // TODO:
-    //  * create the message queues (see message_queue_test() in interprocess_basic.c)
-    //  * create the child processes (see process_test() and message_queue_test())
+    //  * create the message queues (see message_queue_test()
+    //       in interprocess_basic.c)
+    //  * create the child processes (see process_test()
+    //       and message_queue_test())
     //  * do the farming
-    //  * wait until the chilren have been stopped (see process_test())
+    //  * wait until the chilren have been 
+    //      stopped (see process_test())
     //  * clean up the message queues (see message_queue_test())
 
-    // Important notice: make sure that the names of the message queues contain your
-    // student name and the process id (to ensure uniqueness during testing)
+    // Important notice: make sure 
+    // that the names of the message queues contain your
+    // student name and the process id 
+    //(to ensure uniqueness during testing)
     
     return (0);
 }
