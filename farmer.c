@@ -113,7 +113,7 @@ int main (int argc, char * argv[])
         //  * get the request message attributes
         mq_getattr(mq_fd_request,&attrReq);
 
-        while (attrReq.mq_curmsgs < MQ_MAX_MESSAGES && currentalphabet > ALPHABET_END_CHAR) {
+        while (attrReq.mq_curmsgs < MQ_MAX_MESSAGES && currentalphabet < ALPHABET_END_CHAR) {
 
             req.Fc = ALPHABET_START_CHAR;
             req.Lc = ALPHABET_END_CHAR;
