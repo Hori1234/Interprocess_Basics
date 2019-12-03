@@ -26,23 +26,166 @@
 #include "settings.h"
 #include "common.h"
 
+#define STUDENT_NAME1        "Natalia"
+#define STUDENT_NAME2	     "Hori"
+
+//static char                 mq_name1[80];
+//static char                 mq_name2[80];
+
+
+static void childproccreate(pid_t childproc[]) {
+
+    // get process IDs from fork()
+    for (int i = 0; i<NROF_WORKERS; i++) {
+        childproc[i] = fork();
+
+        if (childproc[i] < 0)
+        {
+           perror("fork() failed");
+           exit (1);
+        }
+       else
+       {
+            if (childproc[i] == 0)
+            {
+                printf ("child  pid:%d\n", getpid());
+                execlp ("ps", "ps", "-l", NULL);
+
+                // we should never arrive here...
+                perror ("execlp() failed");
+            }
+        }
+
+    }
+
+}
 
 int main (int argc, char * argv[])
 {
+    // check if the user has started this program with valid arguments
     if (argc != 1)
     {
-        fprintf (stderr, "%s: invalid arguments\n", argv[0]);
+        fprintf (stderr, "%s: %d arguments:\n", argv[0], argc);
+        for (int i = 1; i <= argc; i++)
+        {
+            fprintf (stderr, "     '%s'\n", argv[i]);
+        }
+        exit (1);
     }
-        
-    // TODO:
-    //  * create the message queues (see message_queue_test() in interprocess_basic.c)
-    //  * create the child processes (see process_test() and message_queue_test())
-    //  * do the farming
-    //  * wait until the chilren have been stopped (see process_test())
-    //  * clean up the message queues (see message_queue_test())
+    // else: parse the arguments...
 
-    // Important notice: make sure that the names of the message queues contain your
-    // student name and the process id (to ensure uniqueness during testing)
+    mqd_t               mq_fd_request;
+    mqd_t               mq_fd_response;
+    MQ_REQUEST_MESSAGE  req;
+    MQ_RESPONSE_MESSAGE rsp;
+    struct mq_attr      attr;
+    
+        
+    //  * create the message queues (see message_queue_test()
+    //       in interprocess_basic.c)
+    sprintf (mq_name1, "/mq_request_%s_%d", STUDENT_NAME1, getpid());
+    sprintf (mq_name2, "/mq_response_%s_%d", STUDENT_NAME2, getpid());
+
+    attr.mq_maxmsg  = MQ_MAX_MESSAGES;
+    attr.mq_msgsize = sizeof (MQ_REQUEST_MESSAGE);
+    mq_fd_request = mq_open (mq_name1, O_WRONLY | O_CREAT | O_EXCL, 0600, &attr);
+    attr.mq_maxmsg  = MQ_MAX_MESSAGES;
+    attr.mq_msgsize = sizeof (MQ_RESPONSE_MESSAGE);
+    mq_fd_response = mq_open (mq_name2, O_RDONLY | O_CREAT | O_EXCL, 0600, &attr);
+
+    //getattr(mq_fd_request);
+    //getattr(mq_fd_response);
+
+    //  * create the child processes (see process_test()
+    //       and message_queue_test())
+    pid_t childproc[NROF_WORKERS];
+    childproccreate(childproc);
+
+    //  * do the farming
+    //  * declare counting variables
+    int allhashes = 0;
+    int currentalphabet = ALPHABET_START_CHAR;
+    int listIndex = 0;
+    int reveivedMessages = 0;
+    char toFile[MD5_LIST_NROF];
+    //int toFileIndex = 0;
+    while (reveivedMessages < JOBS_NROF) {
+
+         //  * get the response message attributes
+           // mq_getattr(mq_fd_response);
+
+        if (allhashes > MQ_MAX_MESSAGES && currentalphabet > ALPHABET_END_CHAR) {
+
+            if (attr.mq_curmsgs != 0) {
+                mq_receive(mq_fd_response, (char *)&rsp, sizeof(rsp), NULL);
+                
+                if (rsp.listIndex < MD5_LIST_NROF){
+                    if (rsp.length != 0){
+                        strcpy(toFile[rsp.listIndex],"");
+                        strcat(toFile[rsp.listIndex],"'");
+                        strcat(toFile[rsp.listIndex],rsp.message);
+                        strcat(toFile[rsp.listIndex],"'");
+                        strcat(toFile[rsp.listIndex],"\n");
+                        
+                    }
+
+                    reveivedMessages ++;
+                    allhashes --;
+                }
+            }
+            
+        } else {
+    //set the request message
+    //  * get the request message attributes
+            //mq_getattr(mq_fd_request);
+            
+            req.Fc = ALPHABET_START_CHAR;
+            req.Lc = ALPHABET_END_CHAR;
+            req.listIndex = listIndex;
+            req.encryption = md5_list[listIndex];
+            req.length = strlen(md5_list[listIndex]);
+
+            mq_send(mq_fd_request, (char *)&req, sizeof(req), 0);
+            allhashes ++;
+
+            if (listIndex > MD5_LIST_NROF ) {
+                listIndex = 0;
+                currentalphabet ++;
+            } else {
+                listIndex ++;
+            }
+        }
+        
+
+    	if (currentalphabet > ALPHABET_NROF_CHAR) {
+    	    currentalphabet = 0;
+    	}
+    
+    }
+    
+
+    //Output in File
+    for (int i=0; i<MD5_LIST_NROF; i++){
+        fprintf(stdout, "%d", toFile[i]);
+    }
+    //  * wait until the chilren have been 
+    //      stopped (see process_test())    
+    for (int i = 0; i<NROF_WORKERS; i++) {
+        waitpid (childproc[i], NULL, 0);   // wait for the child
+        printf ("child %d has been finished\n\n", childproc[i]);
+    }
+
+
+    //  * clean up the message queues (see message_queue_test())
+            mq_close (mq_fd_response);
+            mq_close (mq_fd_request);
+            mq_unlink (mq_name1);
+            mq_unlink (mq_name2);      
+
+    // Important notice: make sure 
+    // that the names of the message queues contain your
+    // student name and the process id 
+    //(to ensure uniqueness during testing)
     
     return (0);
 }

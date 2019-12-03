@@ -21,7 +21,7 @@
 #include <mqueue.h>         // for mq-stuff
 #include <time.h>           // for time()
 #include <complex.h>
-
+#include "uint128.h"
 #include "common.h"
 #include "md5s.h"
 
@@ -58,14 +58,14 @@ int main (int argc, char * argv[])
             
             //define a temp variable to store the first char
             
-            char word[1];
+            char word[MAX_MESSAGE_LENGTH];
             word[0] = req.Fc;
 
                 //initialize the sollution array
             char sollution[req.length];
     
     //      - do that job 
-              bool hashFound = findHash(req.Fc,req.Lc,word,req.md5,sollution,req.length,1);  
+              bool hashFound = findHash(req.Fc,req.Lc,word,req.encryption,sollution,req.length,1);  
 
               if(hashFound){
 
@@ -122,35 +122,36 @@ static void rsleep (int t)
     usleep (random() % t);
 }
 
-static bool hashFound(char Fc, char Lc, char word[], uint128_t encryptedWord, char* solution, int messageLength, int k){
+static bool findHash(char Fc, char Lc, char word[], uint128_t encryptedWord, char* solution, int messageLength, int k){
 
     uint128_t hash;
+    
     hash = md5s(word,strlen(word));
 
-    bool hasIsFound = false;
+    bool hashIsFound = false;
 
     if(strlen(hash) == strlen(encryptedWord)){
 
         if (compare(hash,encryptedWord)) {
             strcpy(solution,word);
-            hasIsFound = true;
+            hashIsFound = true;
         } 
     } else {
 
-        if (strlen(word) < messageLength && hasIsFound == false){
+        if (strlen(word) < messageLength && hashIsFound == false){
 
             for (char c = Fc; c <= Lc; c++){
 
                   word[k] = c;
-                  if (hashFound(Fc,Lc,word,encryptedWord,solution,messageLength,k+1)){
-                    hasIsFound = true;
+                  if (findHash(Fc,Lc,word,encryptedWord,solution,messageLength,k+1)){
+                    hashIsFound = true;
                   }          
 
             }
         }
     }
 
-    return hashFound;
+    return hashIsFound;
 }
 
 // Comparing the hashed string with the original one
