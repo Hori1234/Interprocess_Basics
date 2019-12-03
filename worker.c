@@ -26,8 +26,12 @@
 #include "md5s.h"
 
 static void rsleep (int t);
+<<<<<<< HEAD
 static bool findHash(char Fc, char Lc, char word[], uint128_t encryptedWord, char* solution, int messageLength, int k);
 static bool compare(uint128_t check[],uint128_t result[]);
+=======
+static bool findHash();
+>>>>>>> Farmer
 
 int main (int argc, char * argv[])
 {
@@ -57,15 +61,24 @@ int main (int argc, char * argv[])
             } else {
             
             //define a temp variable to store the first char
+<<<<<<< HEAD
             
             char word[1];
             word[0] = req.Fc;
 
+=======
+            char temp[1];
+            temp[0] = req.first_char;
+>>>>>>> Farmer
                 //initialize the sollution array
             char sollution[req.length];
     
     //      - do that job 
+<<<<<<< HEAD
               bool hashFound = findHash(req.Fc,req.Lc,word,req.md5,sollution,req.length,1);  
+=======
+              bool hashFound = findHash();  
+>>>>>>> Farmer
 
               if(hashFound){
 
@@ -81,10 +94,16 @@ int main (int argc, char * argv[])
                     res.message[i] = (char) 0;
                 }
 
+<<<<<<< HEAD
                 res.length = strlen(sollution);
               } else {
                 
                 res.length = 0;
+=======
+              } else {
+                
+                res.size = 0;
+>>>>>>> Farmer
               
               }
     //      - write the results to a message queue
@@ -122,6 +141,7 @@ static void rsleep (int t)
     usleep (random() % t);
 }
 
+<<<<<<< HEAD
 static bool hashFound(char Fc, char Lc, char word[], uint128_t encryptedWord, char* solution, int messageLength, int k){
 
     uint128_t hash;
@@ -164,3 +184,8 @@ static bool compare(uint128_t check[], uint128_t result[]){
     }
     return true;
 }
+=======
+static bool hashFound(char word[],(char *) &sol[], ){
+
+}
+>>>>>>> Farmer

@@ -28,6 +28,7 @@ typedef struct
     char					Fc; //First Char of the given alphabet
     char					Lc; //Last Char of the given alphabet
     uint128_t				md5; // MD encrytion tool
+
 } MQ_REQUEST_MESSAGE;
 
 typedef struct
@@ -37,6 +38,7 @@ typedef struct
     int 					pid; //Id
     int                     length; //Rength of the sollution
     char                    message[MAX_MESSAGE_LENGTH]; //The sollution
+
 } MQ_RESPONSE_MESSAGE;
 
 
