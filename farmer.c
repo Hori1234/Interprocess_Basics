@@ -148,11 +148,6 @@ int main (int argc, char * argv[])
                 receivedMessages ++;
 	    }
 
-    	if (currentalphabet > ALPHABET_NROF_CHAR) {
-    	    currentalphabet = ALPHABET_START_CHAR;
-    	}
-
-
     }
 
 
