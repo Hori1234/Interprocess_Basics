@@ -106,7 +106,7 @@ int main (int argc, char * argv[])
     int currentalphabet = ALPHABET_START_CHAR;
     int listIndex = 0;
     int receivedMessages = 0;
-    char toFile[MD5_LIST_NROF];
+    char toFile[6][MAX_MESSAGE_LENGTH + 4];
     //int toFileIndex = 0;
     while (receivedMessages < JOBS_NROF) {
 
@@ -119,7 +119,8 @@ int main (int argc, char * argv[])
             req.Lc = ALPHABET_END_CHAR;
             req.listIndex = listIndex;
             req.encryption = md5_list[listIndex];
-            req.length = strlen(md5_list[listIndex]);
+            req.length = MAX_MESSAGE_LENGTH;
+            req.currentChar = currentalphabet;
 
             mq_send(mq_fd_request, (char *)&req, sizeof(req), 0);
             allhashes ++;
@@ -131,18 +132,17 @@ int main (int argc, char * argv[])
                 listIndex ++;
             }
 
+        }
 
-	}
-
-	mq_receive(mq_fd_response, (char *)&rsp, sizeof(rsp), NULL);
+	   mq_receive(mq_fd_response, (char *)&rsp, sizeof(rsp), NULL);
                 
             if (rsp.listIndex < MD5_LIST_NROF){
-                if (rsp.length != 0){
-                    strcpy(toFile[rsp.listIndex],"");
-                    strcat(toFile[rsp.listIndex],"'");
-                    strcat(toFile[rsp.listIndex],rsp.message);
-                    strcat(toFile[rsp.listIndex],"'");
-                    strcat(toFile[rsp.listIndex],"\n");                    
+                if (rsp.length > 0){
+
+                    strcpy(toFile[rsp.listIndex], "");
+                    strcat(toFile[rsp.listIndex], "'");
+                    strcat(toFile[rsp.listIndex], rsp.message);
+                    strcat(toFile[rsp.listIndex], "'\n");              
                 }
 
                 receivedMessages ++;
@@ -172,7 +172,7 @@ int main (int argc, char * argv[])
 
     //Output in File
     for (int i=0; i<MD5_LIST_NROF; i++){
-        fprintf(stdout, "%d", toFile[i]);
+        fprintf(stdout, "%s", toFile[i]);
     }
 
 
