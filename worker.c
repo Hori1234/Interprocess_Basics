@@ -2,8 +2,8 @@
  * Operating Systems {2INCO} Practical Assignment
  * Interprocess Communication
  *
- * STUDENT_NAME_1 (STUDENT_NR_1)
- * STUDENT_NAME_2 (STUDENT_NR_2)
+ * N. Golova (0954489)
+ * H. Breazu (1229343)
  *
  * Grading:
  * Students who hand in clean code that fully satisfies the minimum requirements will get an 8. 
@@ -40,8 +40,8 @@ int main (int argc, char * argv[])
     MQ_REQUEST_MESSAGE req;
     MQ_RESPONSE_MESSAGE res; 
     
-    m_com_request = mq_open(mq_name1,O_RDONLY);
-    m_com_response = mq_open(mq_name2,O_WRONLY);
+    m_com_request = mq_open(mq_req,O_RDONLY);
+    m_com_response = mq_open(mq_res,O_WRONLY);
     //      are provided in the arguments)
     bool havingJobs = true;
     //  * repeatingly:

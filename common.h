@@ -16,8 +16,8 @@
 
 // TODO: put your definitions of the datastructures here
 
-static char mq_name1[80];
-static char mq_name2[80];
+static char mq_req[80];
+static char mq_res[80];
 
 typedef struct
 {

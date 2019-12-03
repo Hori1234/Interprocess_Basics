@@ -2,8 +2,8 @@
  * Operating Systems {2INCO} Practical Assignment
  * Interprocess Communication
  *
- * STUDENT_NAME_1 (STUDENT_NR_1)
- * STUDENT_NAME_2 (STUDENT_NR_2)
+ * N. Golova (0954489)
+ * H. Breazu (1229343)
  *
  * Grading:
  * Students who hand in clean code that fully satisfies the minimum requirements will get an 8. 
@@ -59,8 +59,8 @@ static void childproccreate(pid_t childproc[]) {
 int main (int argc, char * argv[])
 {
 
-    static char                 mq_req[80];
-    static char                 mq_res[80];
+    //static char                 mq_req[80];
+    //static char                 mq_res[80];
     mqd_t               mq_fd_request;
     mqd_t               mq_fd_response;
     MQ_REQUEST_MESSAGE  req;
@@ -68,10 +68,13 @@ int main (int argc, char * argv[])
     struct mq_attr      attrReq;
     struct mq_attr	attrRes;
 
+    MQ_RESPONSE_MESSAGE	results[JOBS_NROF];
+
     // check if the user has started this program with valid arguments
     if (argc != 1)
     {
-        fprintf (stderr, "%s: %d arguments:\n", argv[0], argc);
+        fprintf (stderr, "%s: %d arguments:\n", argv[0
+], argc);
         for (int i = 1; i <= argc; i++)
         {
             fprintf (stderr, "     '%s'\n", argv[i]);
@@ -102,18 +105,17 @@ int main (int argc, char * argv[])
 
     //  * do the farming
     //  * declare counting variables
-    int allhashes = 0;
     int currentalphabet = ALPHABET_START_CHAR;
     int listIndex = 0;
     int receivedMessages = 0;
-    char toFile[6][MAX_MESSAGE_LENGTH + 4];
+//    char toFile[6][MAX_MESSAGE_LENGTH + 4];
     //int toFileIndex = 0;
     while (receivedMessages < JOBS_NROF) {
 
         //  * get the request message attributes
         mq_getattr(mq_fd_request,&attrReq);
 
-        while (attrReq.mq_curmsgs < MQ_MAX_MESSAGES && currentalphabet < ALPHABET_END_CHAR) {
+        while ((attrReq.mq_curmsgs < MQ_MAX_MESSAGES) && (listIndex < JOBS_NROF) && (currentalphabet < ALPHABET_END_CHAR)) {
 
             req.Fc = ALPHABET_START_CHAR;
             req.Lc = ALPHABET_END_CHAR;
@@ -123,7 +125,6 @@ int main (int argc, char * argv[])
             req.currentChar = currentalphabet;
 
             mq_send(mq_fd_request, (char *)&req, sizeof(req), 0);
-            allhashes ++;
 
             if (listIndex > MD5_LIST_NROF ) {
                 listIndex = 0;
@@ -132,30 +133,25 @@ int main (int argc, char * argv[])
                 listIndex ++;
             }
 
+            mq_getattr(mq_fd_request,&attrReq);
+       
+
         }
 
 	   mq_receive(mq_fd_response, (char *)&rsp, sizeof(rsp), NULL);
                 
-            if (rsp.listIndex < MD5_LIST_NROF){
-                if (rsp.length > 0){
+                if ((rsp.listIndex > 0) && (rsp.listIndex < JOBS_NROF)) {
 
-                    strcpy(toFile[rsp.listIndex], "");
-                    strcat(toFile[rsp.listIndex], "'");
-                    strcat(toFile[rsp.listIndex], rsp.message);
-                    strcat(toFile[rsp.listIndex], "'\n");              
+                    results[rsp.listIndex] = rsp;             
                 }
 
                 receivedMessages ++;
-	    }
+	    
 
     }
 
 
 
-    for (int i = 0; i<NROF_WORKERS; i++) {
-	req.length = 0;
-        mq_send(mq_fd_request, (char *)&req, sizeof(req), 0);
-    }    
     
 
     //  * wait until the chilren have been 
@@ -166,16 +162,16 @@ int main (int argc, char * argv[])
     }
 
     //Output in File
-    for (int i=0; i<MD5_LIST_NROF; i++){
-        fprintf(stdout, "%s", toFile[i]);
+    for (int i=0; i<JOBS_NROF; i++){
+	printf("\'%s\'\r\n", results[i].message);
     }
 
 
     //  * clean up the message queues (see message_queue_test())
             mq_close (mq_fd_response);
             mq_close (mq_fd_request);
-            mq_unlink (mq_name1);
-            mq_unlink (mq_name2);      
+            mq_unlink (mq_req);
+            mq_unlink (mq_res);      
 
     // Important notice: make sure 
     // that the names of the message queues contain your
