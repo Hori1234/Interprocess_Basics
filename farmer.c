@@ -158,21 +158,22 @@ int main (int argc, char * argv[])
         
 
     	if (currentalphabet > ALPHABET_NROF_CHAR) {
-    	    currentalphabet = 0;
+    	    currentalphabet = ALPHABET_START_CHAR;
     	}
     
     }
     
 
-    //Output in File
-    for (int i=0; i<MD5_LIST_NROF; i++){
-        fprintf(stdout, "%d", toFile[i]);
-    }
     //  * wait until the chilren have been 
     //      stopped (see process_test())    
     for (int i = 0; i<NROF_WORKERS; i++) {
         waitpid (childproc[i], NULL, 0);   // wait for the child
         printf ("child %d has been finished\n\n", childproc[i]);
+    }
+
+    //Output in File
+    for (int i=0; i<MD5_LIST_NROF; i++){
+        fprintf(stdout, "%d", toFile[i]);
     }
 
 
