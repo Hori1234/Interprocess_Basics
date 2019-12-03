@@ -88,11 +88,11 @@ int main (int argc, char * argv[])
 
     attrReq.mq_maxmsg  = MQ_MAX_MESSAGES;
     attrReq.mq_msgsize = sizeof (MQ_REQUEST_MESSAGE);
-    mq_fd_request = mq_open (mq_req, O_WRONLY | O_CREAT | O_EXCL, 0600, &attr);
+    mq_fd_request = mq_open (mq_req, O_WRONLY | O_CREAT | O_EXCL, 0600, &attrReq);
 
     attrRes.mq_maxmsg  = MQ_MAX_MESSAGES;
     attrRes.mq_msgsize = sizeof (MQ_RESPONSE_MESSAGE);
-    mq_fd_response = mq_open (mq_res, O_RDONLY | O_CREAT | O_EXCL, 0600, &attr);
+    mq_fd_response = mq_open (mq_res, O_RDONLY | O_CREAT | O_EXCL, 0600, &attrRes);
 
 
     //  * create the child processes (see process_test()
@@ -158,7 +158,7 @@ int main (int argc, char * argv[])
 
 
     for (int i = 0; i<NROF_WORKERS; i++) {
-	re.length = 0;
+	req.length = 0;
         mq_send(mq_fd_request, (char *)&req, sizeof(req), 0);
     }    
     
