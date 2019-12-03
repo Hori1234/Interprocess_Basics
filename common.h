@@ -27,6 +27,7 @@ typedef struct
     uint128_t				encryption; //encryption 
     char					Fc; //First Char of the given alphabet
     char					Lc; //Last Char of the given alphabet
+    char 					currentChar;
     
 } MQ_REQUEST_MESSAGE;
 

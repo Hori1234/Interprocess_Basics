@@ -27,7 +27,7 @@
 
 static void rsleep (int t);
 static bool findHash(char Fc, char Lc, char word[], uint128_t encryptedWord, char* solution, int messageLength, int k);
-static bool compare(uint128_t check[],uint128_t result[]);
+static bool compare(uint128_t check[],uint128_t result[], int k);
 
 int main (int argc, char * argv[])
 {
@@ -52,36 +52,36 @@ int main (int argc, char * argv[])
     //      - wait a random amount of time (e.g. rsleep(10000);)
             rsleep(10000);
             
-            if (req.length = 0){
+            if (req.length == 0){
                 havingJobs = false;
             } else {
             
             //define a temp variable to store the first char
-            
-            char word[MAX_MESSAGE_LENGTH];
-            word[0] = req.Fc;
-
-                //initialize the sollution array
+            char word[1];
+            word[0] = req.currentChar;
+            //initialize the sollution array
             char sollution[req.length];
     
     //      - do that job 
               bool hashFound = findHash(req.Fc,req.Lc,word,req.encryption,sollution,req.length,1);  
 
+
               if(hashFound){
 
                 // Copying the solution in the new message
-                for (int i=0; i< sizeof(req); i++){
+                for (int i=0; i< strlen(sollution); i++){
                     res.message[i] = sollution[i];
                 }
 
                 // Filling the rest of the message in order to reach the 
                 // final length
-                for (int i = req.length; i < sizeof(res.message); i++)
+                for (int j = strlen(sollution); j < req.length; j++)
                 {
-                    res.message[i] = (char) 0;
+                    res.message[j] = (char) 0;
                 }
 
                 res.length = strlen(sollution);
+                res.listIndex = req.listIndex;
               } else {
                 
                 res.length = 0;
@@ -130,34 +130,39 @@ static bool findHash(char Fc, char Lc, char word[], uint128_t encryptedWord, cha
 
     bool hashIsFound = false;
 
-    if(strlen(hash) == strlen(encryptedWord)){
+    if(hash == encryptedWord){
 
-        if (compare(hash,encryptedWord)) {
+        //if (compare((uint128_t *) &hash,(uint128_t *) &encryptedWord , k)) {
             strcpy(solution,word);
             hashIsFound = true;
-        } 
-    } else {
+        //} 
+    } 
 
-        if (strlen(word) < messageLength && hashIsFound == false){
+        if (strlen(word) < messageLength && !hashIsFound){
 
-            for (char c = Fc; c <= Lc; c++){
+            for (char c = Fc; c <= Lc && !hashIsFound; c++){
 
-                  word[k] = c;
-                  if (findHash(Fc,Lc,word,encryptedWord,solution,messageLength,k+1)){
+                char tmp[k + 1];
+                char letter[1];
+                letter[0] = c;
+                strcpy(tmp,word);
+                strcat(tmp,letter);
+                
+                if (findHash(Fc,Lc,tmp,encryptedWord,solution,messageLength,k+1)){
                     hashIsFound = true;
-                  }          
+                }          
 
             }
         }
-    }
+    
 
     return hashIsFound;
 }
 
 // Comparing the hashed string with the original one
-static bool compare(uint128_t check[], uint128_t result[]){
+static bool compare(uint128_t check[], uint128_t result[], int k){
     
-    for (int i=0; i < strlen(result); i++){
+    for (int i=0; i < k; i++){
         
         if (check[i] != result[i]){
             return false;
